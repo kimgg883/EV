@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gov-Retire Planner - คู่มือ & วางแผนชีวิตเกษียณสำหรับข้าราชการและพนักงานรัฐ</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts: Prompt -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: {
+                            50: '#f0f4f8',
+                            100: '#d9e2ec',
+                            700: '#102a43',
+                            800: '#0b69a3',
+                            900: '#091e36',
+                        },
+                        emerald: {
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                        },
+                        gold: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Prompt', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: #f8fafc;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="text-slate-800 flex flex-col min-h-screen">
+
+    <!-- Navigation Header -->
+    <header class="bg-navy-900 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- Logo & Title -->
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('dashboard')">
+                    <div class="w-11 h-11 bg-gradient-to-tr from-gold-500 to-emerald-500 rounded-xl flex items-center justify-center shadow-md">
+                        <i class="fa-solid me-0.5 fa-building-columns text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <span class="text-xl font-bold tracking-wide text-white block">Gov-Retire <span class="text-gold-400">Planner</span></span>
+                        <span class="text-xs text-slate-300 font-light block">ระบบวางแผนเกษียณข้าราชการ & พนักงานรัฐ</span>
+                    </div>
+                </div>
+
+                <!-- Desktop Nav -->
+                <nav class="hidden md:flex space-x-1 lg:space-x-2">
+                    <button id="nav-dashboard" onclick="switchTab('dashboard')" class="nav-btn px-4 py-2.5 rounded-lg text-sm font-medium transition flex items-center space-x-2 text-white bg-white/10">
+                        <i class="fa-solid fa-chart-pie"></i>
+                        <span>ภาพรวม (Dashboard)</span>
+                    </button>
+                    <button id="nav-pension" onclick="switchTab('pension')" class="nav-btn px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-white/10 transition flex items-center space-x-2">
+                        <i class="fa-solid fa-calculator"></i>
+                        <span>คำนวณบำนาญ/กบข.</span>
+                    </button>
+                    <button id="nav-debt" onclick="switchTab('debt')" class="nav-btn px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-white/10 transition flex items-center space-x-2">
+                        <i class="fa-solid fa-house-circle-check"></i>
+                        <span>วางแผนหมดหนี้</span>
+                    </button>
+                    <button id="nav-guide" onclick="switchTab('guide')" class="nav-btn px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-white/10 transition flex items-center space-x-2">
+                        <i class="fa-solid fa-book-medical"></i>
+                        <span>คู่มือสวัสดิการ & เช็กลิสต์</span>
+                    </button>
+                </nav>
+
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden">
+                    <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="text-slate-300 hover:text-white focus:outline-none p-2">
+                        <i class="fa-solid fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-navy-900 border-t border-slate-700 px-4 pt-2 pb-4 space-y-2">
+            <button onclick="switchTab('dashboard')" class="w-full text-left px-3 py-2.5 rounded-md text-base font-medium text-white bg-white/10 flex items-center space-x-3">
+                <i class="fa-solid fa-chart-pie w-5"></i>
+                <span>ภาพรวม (Dashboard)</span>
+            </button>
+            <button onclick="switchTab('pension')" class="w-full text-left px-3 py-2.5 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-white/10 flex items-center space-x-3">
+                <i class="fa-solid fa-calculator w-5"></i>
+                <span>คำนวณบำนาญ/กบข.</span>
+            </button>
+            <button onclick="switchTab('debt')" class="w-full text-left px-3 py-2.5 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-white/10 flex items-center space-x-3">
+                <i class="fa-solid fa-house-circle-check w-5"></i>
+                <span>วางแผนหมดหนี้</span>
+            </button>
+            <button onclick="switchTab('guide')" class="w-full text-left px-3 py-2.5 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-white/10 flex items-center space-x-3">
+                <i class="fa-solid fa-book-medical w-5"></i>
+                <span>คู่มือสวัสดิการ & เช็กลิสต์</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- ================= TAB 1: DASHBOARD ================= -->
+        <section id="tab-dashboard" class="tab-content block space-y-6">
+            
+            <!-- Welcome Banner & Retirement Countdown -->
+            <div class="bg-gradient-to-r from-navy-900 via-navy-700 to-slate-900 rounded-2xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden">
+                <div class="absolute right-0 top-0 bottom-0 opacity-10 pointer-events-none flex items-center pr-10">
+                    <i class="fa-solid fa-hourglass-half text-[180px]"></i>
+                </div>
+                
+                <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                    <div class="lg:col-span-7 space-y-3">
+                        <div class="inline-flex items-center space-x-2 bg-gold-500/20 text-gold-400 border border-gold-500/30 px-3 py-1 rounded-full text-xs font-semibold">
+                            <i class="fa-solid fa-shield-halved"></i>
+                            <span>วางแผนอนาคตอย่างมั่นใจ</span>
+                        </div>
+                        <h1 class="text-2xl sm:text-3xl font-bold tracking-tight">สรุปภาพรวมเตรียมความพร้อมก่อนเกษียณ</h1>
+                        <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+                            คำนวณและประเมินสถานะทางการเงิน สิทธิรักษาพยาบาล และเป้าหมายการปลดหนี้ เพื่อชีวิตหลังเกษียณที่สบายใจไร้กังวล
+                        </p>
+                    </div>
+
+                    <!-- Countdown Box -->
+                    <div class="lg:col-span-5 bg-white/10 backdrop-blur-md rounded-xl p-5 border border-white/15 text-center">
+                        <span class="text-xs uppercase tracking-wider text-slate-300 font-medium block mb-2">นับถอยหลังสู่วันเกษียณราชการ (30 ก.ย.)</span>
+                        <div class="grid grid-cols-3 gap-2 my-2">
+                            <div class="bg-navy-900/80 p-3 rounded-lg border border-white/10">
+                                <span id="cd-years" class="text-2xl sm:text-3xl font-bold text-gold-400 block">12</span>
+                                <span class="text-[11px] text-slate-400">ปี</span>
+                            </div>
+                            <div class="bg-navy-900/80 p-3 rounded-lg border border-white/10">
+                                <span id="cd-months" class="text-2xl sm:text-3xl font-bold text-emerald-400 block">5</span>
+                                <span class="text-[11px] text-slate-400">เดือน</span>
+                            </div>
+                            <div class="bg-navy-900/80 p-3 rounded-lg border border-white/10">
+                                <span id="cd-days" class="text-2xl sm:text-3xl font-bold text-white block">18</span>
+                                <span class="text-[11px] text-slate-400">วัน</span>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-300 mt-2">
+                            คาดว่าจะเกษียณปี พ.ศ. <span id="dash-retire-year" class="font-semibold text-gold-400">2038</span> (อายุราชการรวม <span id="dash-total-service" class="font-semibold text-white">35</span> ปี)
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Key Metrics Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Metric 1: Projected Pension -->
+                <div class="bg-white rounded-xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-600">
+                            <i class="fa-solid fa-sack-dollar text-xl"></i>
+                        </div>
+                        <span class="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+                            รายเดือนหลังเกษียณ
+                        </span>
+                    </div>
+                    <span class="text-sm font-medium text-slate-500 block">เงินบำนาญคาดการณ์/เดือน</span>
+                    <div class="flex items-baseline space-x-1 mt-1">
+                        <span id="dash-pension-amount" class="text-3xl font-bold text-slate-900">38,500</span>
+                        <span class="text-sm text-slate-500">บาท</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-3 flex items-center">
+                        <i class="fa-solid fa-circle-info text-slate-400 mr-1.5"></i>
+                        คำนวณจากสูตรสมาชิก กบข. (สูงสุด 70%)
+                    </p>
+                </div>
+
+                <!-- Metric 2: Estimated Lump Sum -->
+                <div class="bg-white rounded-xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-navy-50 rounded-xl flex items-center justify-center text-navy-800">
+                            <i class="fa-solid fa-vault text-xl"></i>
+                        </div>
+                        <span class="text-xs font-semibold text-navy-800 bg-navy-50 px-2.5 py-1 rounded-full border border-navy-100">
+                            เงินก้อน ณ วันเกษียณ
+                        </span>
+                    </div>
+                    <span class="text-sm font-medium text-slate-500 block">เงินสะสม กบข. คาดการณ์</span>
+                    <div class="flex items-baseline space-x-1 mt-1">
+                        <span id="dash-lump-sum" class="text-3xl font-bold text-slate-900">1,850,000</span>
+                        <span class="text-sm text-slate-500">บาท</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-3 flex items-center">
+                        <i class="fa-solid fa-chart-line text-emerald-600 mr-1.5"></i>
+                        สมมติฐานผลตอบแทนเฉลี่ย 3.5% ต่อปี
+                    </p>
+                </div>
+
+                <!-- Metric 3: Debt Clearance Status -->
+                <div class="bg-white rounded-xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center text-amber-600">
+                            <i class="fa-solid fa-house-lock text-xl"></i>
+                        </div>
+                        <span id="dash-debt-badge" class="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+                            ผ่อนหมดก่อนเกษียณ
+                        </span>
+                    </div>
+                    <span class="text-sm font-medium text-slate-500 block">สถานะหนี้สิน/บ้านก่อนเกษียณ</span>
+                    <div class="flex items-baseline space-x-1 mt-1">
+                        <span id="dash-debt-year" class="text-3xl font-bold text-slate-900">เหลือ 8 ปี</span>
+                    </div>
+                    <p id="dash-debt-desc" class="text-xs text-slate-500 mt-3 flex items-center">
+                        <i class="fa-solid fa-check-circle text-emerald-500 mr-1.5"></i>
+                        หนี้สิ้นสุดก่อนเกษียณ 4 ปี (หมดปี พ.ศ. 2034)
+                    </p>
+                </div>
+            </div>
+
+            <!-- Visual Charts Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Pension vs Salary Chart -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h3 class="text-base font-bold text-slate-900">เปรียบเทียบรายได้ ก่อน vs หลังเกษียณ</h3>
+                            <p class="text-xs text-slate-500">สัดส่วนเงินเดือนสุดท้ายเทียบกับเงินบำนาญที่จะได้รับ</p>
+                        </div>
+                        <button onclick="switchTab('pension')" class="text-xs text-navy-800 font-semibold hover:underline">
+                            ปรับแก้ไขข้อมูล <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                        </button>
+                    </div>
+                    <div class="h-64 relative">
+                        <canvas id="chartIncomeComparison"></canvas>
+                    </div>
+                </div>
+
+                <!-- Debt Trajectory Chart -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h3 class="text-base font-bold text-slate-900">เส้นทางลดภาระหนี้สินจนถึงวันเกษียณ</h3>
+                            <p class="text-xs text-slate-500">เปรียบเทียบการผ่อนปกติ กับ แผนโปะพิเศษเพิ่มความอุ่นใจ</p>
+                        </div>
+                        <button onclick="switchTab('debt')" class="text-xs text-navy-800 font-semibold hover:underline">
+                            วางแผนโปะหนี้ <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                        </button>
+                    </div>
+                    <div class="h-64 relative">
+                        <canvas id="chartDebtTrajectory"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Action Guide Cards -->
+            <div class="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl p-6 border border-emerald-100">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div class="space-y-1">
+                        <h4 class="text-base font-bold text-slate-900 flex items-center">
+                            <i class="fa-solid fa-clipboard-check text-emerald-600 mr-2"></i>
+                            เตรียมพร้อมสิทธิประโยชน์และเอกสารยื่นเกษียณ
+                        </h4>
+                        <p class="text-xs text-slate-600">
+                            ตรวจสอบสิทธิเบิกจ่ายค่ารักษาพยาบาลตนเองและครอบครัว พร้อมเช็กลิสต์ขั้นตอนดำเนินงานก่อนเกษียณ 6 เดือน
+                        </p>
+                    </div>
+                    <button onclick="switchTab('guide')" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-medium shadow-sm transition whitespace-nowrap">
+                        ดูคู่มือสวัสดิการ & เช็กลิสต์
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 2: PENSION CALCULATOR ================= -->
+        <section id="tab-pension" class="tab-content hidden space-y-6">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
+                <div class="border-b border-slate-100 pb-4 mb-6">
+                    <h2 class="text-xl font-bold text-slate-900 flex items-center">
+                        <i class="fa-solid fa-calculator text-navy-800 mr-2.5"></i>
+                        คำนวณบำเหน็จบำนาญ และเงินก้อน กบข.
+                    </h2>
+                    <p class="text-sm text-slate-500 mt-1">คำนวณสิทธิประโยชน์ตามกฎหมายบำเหน็จบำนาญข้าราชการและระบบ กบข.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    <!-- Form Input Section -->
+                    <div class="lg:col-span-5 space-y-5 bg-slate-50 p-6 rounded-xl border border-slate-200/80">
+                        <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-2">ข้อมูลส่วนบุคคลและอายุราชการ</h3>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">อายุปัจจุบัน (ปี)</label>
+                            <input type="number" id="input-age" value="48" min="20" max="59" onchange="calculatePension()" class="w-full px-3.5 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-navy-700 focus:border-navy-700 text-sm font-medium">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">อายุราชการปัจจุบัน (ปี)</label>
+                                <input type="number" id="input-service-years" value="23" min="0" max="40" onchange="calculatePension()" class="w-full px-3.5 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-navy-700 focus:border-navy-700 text-sm font-medium">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">(เดือน)</label>
+                                <input type="number" id="input-service-months" value="6" min="0" max="11" onchange="calculatePension()" class="w-full px-3.5 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-navy-700 focus:border-navy-700 text-sm font-medium">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">เงินเดือนปัจจุบัน (บาท)</label>
+                            <input type="number" id="input-salary" value="48500" step="500" onchange="calculatePension()" class="w-full px-3.5 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-navy-700 focus:border-navy-700 text-sm font-medium">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">ประมาณการเงินเดือนเฉลี่ย 60 เดือนสุดท้าย (บาท)</label>
+                            <input type="number" id="input-avg-salary" value="55000" step="500" onchange="calculatePension()" class="w-full px-3.5 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-navy-700 focus:border-navy-700 text-sm font-medium">
+                            <span class="text-[11px] text-slate-500 mt-1 block">* โดยทั่วไปประเมินจากเงินเดือน ณ วันเกษียณ หรือประมาณ +10%-15% ของปัจจุบัน</span>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-2">ประเภทระบบบำนาญ</label>
+                            <div class="space-y-2">
+                                <label class="flex items-start space-x-2.5 p-2.5 rounded-lg border border-slate-200 bg-white cursor-pointer hover:border-navy-700">
+                                    <input type="radio" name="system_type" value="gpf" checked onchange="calculatePension()" class="mt-0.5 text-navy-800 focus:ring-navy-700">
+                                    <div class="text-xs">
+                                        <span class="font-bold text-slate-800 block">สมาชิก กบข. (ระบบปัจจุบัน)</span>
+                                        <span class="text-slate-500">บำนาญสูงสุดไม่เกิน 70% ของเงินเดือนเฉลี่ย 60 เดือนสุดท้าย + เงินก้อน กบข.</span>
+                                    </div>
+                                </label>
+                                <label class="flex items-start space-x-2.5 p-2.5 rounded-lg border border-slate-200 bg-white cursor-pointer hover:border-navy-700">
+                                    <input type="radio" name="system_type" value="old" onchange="calculatePension()" class="mt-0.5 text-navy-800 focus:ring-navy-700">
+                                    <div class="text-xs">
+                                        <span class="font-bold text-slate-800 block">ระบบบำนาญเดิม (ไม่เป็น กบข.)</span>
+                                        <span class="text-slate-500">ใช้สูตร: (เงินเดือนเดือนสุดท้าย x อายุราชการ) / 50 (ไม่เพดาน 70%)</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div id="gpf-extra-inputs" class="space-y-3 pt-2 border-t border-slate-200">
+                            <h4 class="text-xs font-bold text-slate-700">ข้อมูลเงินสะสม กบข. ปัจจุบัน</h4>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1">ยอดเงินสะสม กบข. รวมปัจจุบัน (บาท)</label>
+                                <input type="number" id="input-gpf-balance" value="650000" step="5000" onchange="calculatePension()" class="w-full px-3.5 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-navy-700 focus:border-navy-700 text-sm font-medium">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1">ออมเพิ่ม กบข. ประจำเดือน (% ของเงินเดือน)</label>
+                                <select id="input-gpf-rate" onchange="calculatePension()" class="w-full px-3.5 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-navy-700 focus:border-navy-700 text-sm font-medium">
+                                    <option value="3">3% (ส่งตามกฎหมาย)</option>
+                                    <option value="5" selected>5% (สะสมเพิ่ม 2%)</option>
+                                    <option value="8">8% (สะสมเพิ่ม 5%)</option>
+                                    <option value="10">10% (สะสมเพิ่ม 7%)</option>
+                                    <option value="15">15% (สะสมเพิ่มสูงสุด 12%)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Output Details Section -->
+                    <div class="lg:col-span-7 space-y-6 flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-base font-bold text-slate-900 mb-4 pb-2 border-b border-slate-100 flex items-center justify-between">
+                                <span>สรุปผลการคำนวณ ณ วันเกษียณอายุ</span>
+                                <span class="text-xs font-normal text-slate-500">(อายุราชการรวม <span id="out-total-service-years" class="font-bold text-navy-800">35</span> ปี)</span>
+                            </h3>
+
+                            <!-- Monthly Pension Card -->
+                            <div class="bg-gradient-to-r from-navy-900 to-navy-700 text-white p-6 rounded-2xl shadow-md mb-6">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-xs uppercase tracking-wider text-slate-300 font-semibold">เงินบำนาญที่จะได้รับต่อเดือน</span>
+                                    <span id="out-pension-formula-tag" class="text-[11px] bg-white/20 text-white px-2.5 py-0.5 rounded-full">สูตร กบข.</span>
+                                </div>
+                                <div class="flex items-baseline space-x-2">
+                                    <span id="out-monthly-pension" class="text-4xl font-extrabold text-gold-400">38,500</span>
+                                    <span class="text-lg text-slate-200">บาท / เดือน</span>
+                                </div>
+                                <div class="mt-4 pt-3 border-t border-white/10 text-xs text-slate-300 flex justify-between">
+                                    <span>อัตราบำนาญเทียบเงินเดือนเฉลี่ย:</span>
+                                    <span id="out-pension-ratio" class="font-bold text-white">70.00%</span>
+                                </div>
+                                <p id="out-pension-note" class="text-[11px] text-slate-400 mt-1">
+                                    * ติดเพดานสูงสุด 70% ตามกฎหมาย กบข.
+                                </p>
+                            </div>
+
+                            <!-- Lump Sum Breakdown (GPF) -->
+                            <div id="gpf-result-card" class="bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-3">
+                                <h4 class="text-sm font-bold text-slate-800 flex items-center justify-between">
+                                    <span>ประมาณการเงินก้อน กบข. ณ วันเกษียณ</span>
+                                    <span id="out-gpf-total" class="text-xl font-bold text-emerald-600">1,850,000 บาท</span>
+                                </h4>
+                                <p class="text-xs text-slate-500">สัดส่วนรายละเอียดเงินก้อน กบข. (ประเมินผลตอบแทนลงทุน 3.5% ต่อปี)</p>
+                                
+                                <div class="grid grid-cols-2 gap-3 pt-2 text-xs">
+                                    <div class="bg-white p-3 rounded-lg border border-slate-200">
+                                        <span class="text-slate-500 block">เงินสะสม + เงินออมเพิ่ม</span>
+                                        <span id="out-gpf-member" class="text-sm font-bold text-slate-800">720,000 บาท</span>
+                                    </div>
+                                    <div class="bg-white p-3 rounded-lg border border-slate-200">
+                                        <span class="text-slate-500 block">เงินสมทบจากรัฐ (3%)</span>
+                                        <span id="out-gpf-gov" class="text-sm font-bold text-slate-800">430,000 บาท</span>
+                                    </div>
+                                    <div class="bg-white p-3 rounded-lg border border-slate-200">
+                                        <span class="text-slate-500 block">เงินชดเชย + เงินประเดิม</span>
+                                        <span id="out-gpf-compensate" class="text-sm font-bold text-slate-800">280,000 บาท</span>
+                                    </div>
+                                    <div class="bg-white p-3 rounded-lg border border-slate-200">
+                                        <span class="text-slate-500 block">ดอกผลและผลประโยชน์จากการลงทุน</span>
+                                        <span id="out-gpf-gain" class="text-sm font-bold text-emerald-600">420,000 บาท</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Lump Sum Option (Lump Sum Option instead of Pension) -->
+                            <div class="mt-4 p-4 bg-amber-50 rounded-xl border border-amber-200 flex items-start space-x-3">
+                                <i class="fa-solid fa-circle-exclamation text-amber-600 text-lg mt-0.5"></i>
+                                <div class="text-xs text-amber-900 space-y-1">
+                                    <span class="font-bold block">ทางเลือก: หากเลือกรับ "เงินบำเหน็จ" (รับเงินก้อนครั้งเดียว ไม่รับบำนาญรายเดือน)</span>
+                                    <p>ท่านจะได้รับเงินบำเหน็จจากรัฐประมาณ <span id="out-lump-pension-option" class="font-bold text-amber-900">1,333,750</span> บาท (คิดจาก เงินเดือนสุดท้าย x อายุราชการ)</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Button -->
+                        <div class="pt-4 border-t border-slate-100 flex justify-end">
+                            <button onclick="switchTab('debt')" class="px-6 py-3 bg-navy-900 hover:bg-navy-800 text-white rounded-xl text-sm font-semibold shadow-md transition flex items-center space-x-2">
+                                <span>ไปหน้า วางแผนบริหารหนี้สิน</span>
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 3: DEBT PLANNER ================= -->
+        <section id="tab-debt" class="tab-content hidden space-y-6">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
+                <div class="border-b border-slate-100 pb-4 mb-6">
+                    <h2 class="text-xl font-bold text-slate-900 flex items-center">
+                        <i class="fa-solid fa-house-circle-check text-navy-800 mr-2.5"></i>
+                        แผนบริหารหนี้สิน/บ้านก่อนเกษียณ (Debt-Free Before Retirement)
+                    </h2>
+                    <p class="text-sm text-slate-500 mt-1">วางแผนผ่อนชำระหนี้บ้าน/สหกรณ์/คอนโด ให้หนี้หมดพอดีก่อนเกษียณ 100%</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    <!-- Debt Inputs -->
+                    <div class="lg:col-span-5 space-y-5 bg-slate-50 p-6 rounded-xl border border-slate-200/80">
+                        <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-2">ข้อมูลภาระหนี้สินปัจจุบัน</h3>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">ยอดหนี้คงเหลือรวม (บาท)</label>
+                            <input type="number" id="input-debt-balance" value="1200000" step="10000" onchange="calculateDebt()" class="w-full px-3.5 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-navy-700 focus:border-navy-700 text-sm font-medium">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">อัตราดอกเบี้ยเฉลี่ยต่อปี (% p.a.)</label>
+                            <input type="number" id="input-debt-rate" value="4.5" step="0.1" min="0" max="20" onchange="calculateDebt()" class="w-full px-3.5 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-navy-700 focus:border-navy-700 text-sm font-medium">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">ค่างวดผ่อนต่อเดือนปัจจุบัน (บาท)</label>
+                            <input type="number" id="input-debt-pay" value="14000" step="500" onchange="calculateDebt()" class="w-full px-3.5 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-navy-700 focus:border-navy-700 text-sm font-medium">
+                        </div>
+
+                        <div class="pt-4 border-t border-slate-200">
+                            <label class="block text-xs font-bold text-emerald-800 mb-1">
+                                <i class="fa-solid fa-wand-magic-sparkles mr-1"></i>
+                                แผนออมเพิ่ม/โปะหนี้ต่อเดือน (Extra Payment)
+                            </label>
+                            <input type="number" id="input-debt-extra" value="3000" step="500" onchange="calculateDebt()" class="w-full px-3.5 py-2 rounded-lg border border-emerald-400 bg-emerald-50/50 focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600 text-sm font-bold text-emerald-900">
+                            <span class="text-[11px] text-slate-500 mt-1 block">ระบุจำนวนเงินที่ต้องการโปะเพิ่มทุกเดือน เพื่อดูว่าหนี้จะหมดเร็วขึ้นกี่ปี</span>
+                        </div>
+                    </div>
+
+                    <!-- Debt Analysis Results -->
+                    <div class="lg:col-span-7 space-y-6">
+                        <!-- Summary Comparison Boxes -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Normal Plan -->
+                            <div class="bg-slate-50 rounded-xl p-5 border border-slate-200">
+                                <span class="text-xs font-semibold text-slate-500 block mb-1">กรณีผ่อนตามปกติ (ไม่มีการโปะ)</span>
+                                <div class="text-xl font-bold text-slate-800 mb-2">
+                                    ผ่อนจบใน <span id="out-normal-years" class="text-navy-800">9</span> ปี <span id="out-normal-months">4</span> เดือน
+                                </div>
+                                <div class="space-y-1 text-xs text-slate-600">
+                                    <div class="flex justify-between">
+                                        <span>ปีที่หนี้หมด:</span>
+                                        <span id="out-normal-end-year" class="font-semibold text-slate-800">พ.ศ. 2035</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span>ดอกเบี้ยจ่ายรวม:</span>
+                                        <span id="out-normal-interest" class="font-semibold text-red-600">274,000 บาท</span>
+                                    </div>
+                                </div>
+                                <div id="out-normal-status-tag" class="mt-3 py-1 px-2.5 bg-emerald-100 text-emerald-800 rounded-lg text-[11px] font-semibold text-center">
+                                    <i class="fa-solid fa-check mr-1"></i> หมดหนี้ก่อนเกษียณพอดี
+                                </div>
+                            </div>
+
+                            <!-- Accelerated Plan -->
+                            <div class="bg-emerald-50/80 rounded-xl p-5 border border-emerald-200">
+                                <span class="text-xs font-semibold text-emerald-800 block mb-1">กรณีโปะเพิ่ม <span id="out-extra-label">3,000</span> บาท/เดือน</span>
+                                <div class="text-xl font-bold text-emerald-900 mb-2">
+                                    ผ่อนจบใน <span id="out-acc-years" class="text-emerald-700">7</span> ปี <span id="out-acc-months">2</span> เดือน
+                                </div>
+                                <div class="space-y-1 text-xs text-slate-600">
+                                    <div class="flex justify-between">
+                                        <span>ปีที่หนี้หมด:</span>
+                                        <span id="out-acc-end-year" class="font-semibold text-emerald-900">พ.ศ. 2033</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span>ประหยัดดอกเบี้ยได้:</span>
+                                        <span id="out-acc-saved-interest" class="font-bold text-emerald-700">68,500 บาท</span>
+                                    </div>
+                                </div>
+                                <div class="mt-3 py-1 px-2.5 bg-emerald-600 text-white rounded-lg text-[11px] font-semibold text-center shadow-sm">
+                                    <i class="fa-solid fa-bolt mr-1"></i> ปลดหนี้เร็วขึ้น <span id="out-years-saved">2.2</span> ปี!
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Required Monthly Payment for 100% Debt Free Before Retirement -->
+                        <div class="bg-navy-900 text-white p-5 rounded-xl flex items-center justify-between">
+                            <div>
+                                <span class="text-xs text-slate-300 block">ค่างวดแนะนำเพื่อให้ "หนี้หมดพอดีวันเกษียณ" (เหลือเวลา <span id="out-debt-retire-years" class="text-gold-400 font-bold">12</span> ปี)</span>
+                                <div class="text-2xl font-bold text-gold-400 mt-0.5">
+                                    <span id="out-target-pay">10,800</span> <span class="text-sm font-normal text-slate-300">บาท / เดือน</span>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span id="out-debt-recommendation-badge" class="text-xs bg-emerald-500 text-white font-semibold px-3 py-1 rounded-full">
+                                    ค่างวดปัจจุบันเพียงพอแล้ว
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Debt Trajectory Chart inside Debt Tab -->
+                        <div class="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                            <h4 class="text-xs font-bold text-slate-700 mb-3">เปรียบเทียบยอดหนี้คงเหลือรายปี (ปกติ vs โปะเพิ่ม)</h4>
+                            <div class="h-56 relative">
+                                <canvas id="chartDebtTabTrajectory"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 4: WELFARE GUIDE & CHECKLIST ================= -->
+        <section id="tab-guide" class="tab-content hidden space-y-6">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
+                <div class="border-b border-slate-100 pb-4 mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-900 flex items-center">
+                            <i class="fa-solid fa-book-medical text-navy-800 mr-2.5"></i>
+                            คู่มือสิทธิประโยชน์หลังเกษียณ & เช็กลิสต์การเตรียมตัว
+                        </h2>
+                        <p class="text-sm text-slate-500 mt-1">สรุปสิทธิการรักษาพยาบาลข้าราชการ สวัสดิการครอบครัว และแผนเตรียมเอกสารก่อนเกษียณ</p>
+                    </div>
+
+                    <!-- Search Filter Box -->
+                    <div class="relative w-full md:w-72">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-sm"></i>
+                        <input type="text" id="faq-search" onkeyup="filterFAQ()" placeholder="ค้นหาสิทธิประโยชน์/เรื่องที่สนใจ..." class="w-full pl-10 pr-4 py-2 bg-slate-50 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-navy-700">
+                    </div>
+                </div>
+
+                <!-- Sub-Navigation Toggle (Welfare vs Checklist) -->
+                <div class="flex border-b border-slate-200 mb-6 space-x-6">
+                    <button id="guide-subtab-1" onclick="toggleGuideSubtab('welfare')" class="pb-3 text-sm font-bold border-b-2 border-navy-900 text-navy-900">
+                        <i class="fa-solid fa-shield-heart mr-1.5"></i> สิทธิสวัสดิการการรักษาพยาบาล
+                    </button>
+                    <button id="guide-subtab-2" onclick="toggleGuideSubtab('checklist')" class="pb-3 text-sm font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent">
+                        <i class="fa-solid fa-list-check mr-1.5"></i> เช็กลิสต์เตรียมตัวก่อนเกษียณ (6/3/1 เดือน)
+                    </button>
+                </div>
+
+                <!-- SUBTAB 1: WELFARE CONTENT -->
+                <div id="subtab-content-welfare" class="space-y-6">
+                    <!-- Comparison Card: Pensioner vs Lump Sum -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-navy-50/60 border border-navy-100 rounded-2xl p-5">
+                            <div class="flex items-center space-x-2 text-navy-900 font-bold mb-3">
+                                <i class="fa-solid fa-user-check text-emerald-600 text-lg"></i>
+                                <h3 class="text-base">กรณีเลือกรับ "เงินบำนาญ"</h3>
+                            </div>
+                            <ul class="space-y-2 text-xs text-slate-700">
+                                <li class="flex items-start">
+                                    <i class="fa-solid fa-check text-emerald-600 mr-2 mt-0.5"></i>
+                                    <span><strong>คงสิทธิรักษาพยาบาลข้าราชการตลอดชีวิต</strong> (เบิกจ่ายตรงกรมบัญชีกลางได้ตามปกติ)</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa-solid fa-check text-emerald-600 mr-2 mt-0.5"></i>
+                                    <span><strong>สิทธิครอบคลุมบุคคลในครอบครัว</strong> (คู่สมรส, บิดามารดา, และบุตรไม่เกิน 3 คน อายุปกติไม่เกิน 20 ปี)</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa-solid fa-check text-emerald-600 mr-2 mt-0.5"></i>
+                                    <span>ได้รับเงินช่วยค่าทำศพข้าราชการบำนาญเมื่อเสียชีวิต (3 เท่าของเงินบำนาญเดือนสุดท้าย)</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-amber-50/60 border border-amber-100 rounded-2xl p-5">
+                            <div class="flex items-center space-x-2 text-amber-900 font-bold mb-3">
+                                <i class="fa-solid fa-user-minus text-amber-600 text-lg"></i>
+                                <h3 class="text-base">กรณีเลือกรับ "เงินบำเหน็จ"</h3>
+                            </div>
+                            <ul class="space-y-2 text-xs text-slate-700">
+                                <li class="flex items-start">
+                                    <i class="fa-solid fa-xmark text-red-500 mr-2 mt-0.5"></i>
+                                    <span><strong>สิทธิรักษาพยาบาลข้าราชการสิ้นสุดลง</strong> ณ วันที่พ้นจากราชการ</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa-solid fa-arrow-right text-amber-600 mr-2 mt-0.5"></i>
+                                    <span>ต้องเปลี่ยนไปใช้ <strong>สิทธิหลักประกันสุขภาพแห่งชาติ (บัตรทอง 30 บาท)</strong> หรือ สิทธิประกันสังคม (กรณีทำงานต่อ)</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa-solid fa-xmark text-red-500 mr-2 mt-0.5"></i>
+                                    <span>สิทธิการเบิกจ่ายของคู่สมรส บิดามารดา และบุตรจะสิ้นสุดลงทันทีเช่นกัน</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Interactive FAQ Accordion -->
+                    <div class="space-y-3 pt-4">
+                        <h3 class="text-sm font-bold text-slate-800 mb-3">คำถามที่พบบ่อยเกี่ยวกับสวัสดิการหลังเกษียณ (Interactive FAQ)</h3>
+
+                        <!-- FAQ 1 -->
+                        <div class="faq-item border border-slate-200 rounded-xl overflow-hidden bg-white">
+                            <button onclick="toggleFAQ(this)" class="w-full px-5 py-4 text-left font-medium text-sm text-slate-800 flex justify-between items-center hover:bg-slate-50 transition">
+                                <span class="font-semibold"><i class="fa-solid fa-notes-medical text-navy-700 mr-2"></i> หลังเกษียณแล้ว บิดา มารดา และคู่สมรส ยังเบิกค่ารักษาพยาบาลได้หรือไม่?</span>
+                                <i class="fa-solid fa-chevron-down text-slate-400 text-xs transition-transform duration-200"></i>
+                            </button>
+                            <div class="faq-answer hidden px-5 pb-4 text-xs text-slate-600 border-t border-slate-100 bg-slate-50/50 leading-relaxed pt-3">
+                                ได้ครับ หากท่านเลือกรับ <strong>"เงินบำนาญ"</strong> บุคคลในครอบครัว (คู่สมรสที่ถูกต้องตามกฎหมาย, บิดามารดา, และบุตรชอบด้วยกฎหมายไม่เกิน 3 คน) จะยังคงได้รับสิทธิเบิกจ่ายค่ารักษาพยาบาลสถานพยาบาลของรัฐบาลได้ตามปกติเหมือนสมัยรับราชการ
+                            </div>
+                        </div>
+
+                        <!-- FAQ 2 -->
+                        <div class="faq-item border border-slate-200 rounded-xl overflow-hidden bg-white">
+                            <button onclick="toggleFAQ(this)" class="w-full px-5 py-4 text-left font-medium text-sm text-slate-800 flex justify-between items-center hover:bg-slate-50 transition">
+                                <span class="font-semibold"><i class="fa-solid fa-coins text-gold-600 mr-2"></i> เงินก้อน กบข. จะได้รับเมื่อไหร่ และเสียภาษีหรือไม่?</span>
+                                <i class="fa-solid fa-chevron-down text-slate-400 text-xs transition-transform duration-200"></i>
+                            </button>
+                            <div class="faq-answer hidden px-5 pb-4 text-xs text-slate-600 border-t border-slate-100 bg-slate-50/50 leading-relaxed pt-3">
+                                เงินก้อน กบข. จะได้รับการโอนเข้าบัญชีภายใน 7-14 วันทำการ หลังวันเกษียณอายุราชการ (หรือหลังจากหน่วยงานต้นสังกัดอนุมัติเรื่องเรียบร้อย) และ <strong>ได้รับการยกเว้นภาษีเงินได้บุคคลธรรมดาทั้งจำนวน</strong> หากเกษียณอายุตามกำหนด (อายุครบ 60 ปี)
+                            </div>
+                        </div>
+
+                        <!-- FAQ 3 -->
+                        <div class="faq-item border border-slate-200 rounded-xl overflow-hidden bg-white">
+                            <button onclick="toggleFAQ(this)" class="w-full px-5 py-4 text-left font-medium text-sm text-slate-800 flex justify-between items-center hover:bg-slate-50 transition">
+                                <span class="font-semibold"><i class="fa-solid fa-hospital-user text-emerald-600 mr-2"></i> สิทธิเบิกจ่ายตรงค่ารักษาพยาบาล ต้องไปลงทะเบียนใหม่หลังเกษียณหรือไม่?</span>
+                                <i class="fa-solid fa-chevron-down text-slate-400 text-xs transition-transform duration-200"></i>
+                            </button>
+                            <div class="faq-answer hidden px-5 pb-4 text-xs text-slate-600 border-t border-slate-100 bg-slate-50/50 leading-relaxed pt-3">
+                                โดยปกติระบบฐานข้อมูลของกรมบัญชีกลางจะเชื่อมโยงปรับสถานะจากข้าราชการเป็น "ผู้รับบำนาญ" ให้อัตโนมัติ แต่แนะนำให้ตรวจสอบสถานะสิทธิสวัสดิการผ่านแอปพลิเคชัน <strong>"CGD Life"</strong> หรือติดต่อฝ่ายการเงิน/พฤฒาจารย์ของหน่วยงานท่านก่อนเกษียณ 1 เดือน
+                            </div>
+                        </div>
+
+                        <!-- FAQ 4 -->
+                        <div class="faq-item border border-slate-200 rounded-xl overflow-hidden bg-white">
+                            <button onclick="toggleFAQ(this)" class="w-full px-5 py-4 text-left font-medium text-sm text-slate-800 flex justify-between items-center hover:bg-slate-50 transition">
+                                <span class="font-semibold"><i class="fa-solid fa-hand-holding-dollar text-indigo-600 mr-2"></i> สามารถขอคงเงินไว้ใน กบข. หรือทยอยรับเงินก้อนได้หรือไม่?</span>
+                                <i class="fa-solid fa-chevron-down text-slate-400 text-xs transition-transform duration-200"></i>
+                            </button>
+                            <div class="faq-answer hidden px-5 pb-4 text-xs text-slate-600 border-t border-slate-100 bg-slate-50/50 leading-relaxed pt-3">
+                                ได้ครับ กบข. มีบริการ "บริหารต่อหลังพ้นสมาชิกภาพ" โดยท่านสามารถเลือก: 1) ออมต่อทั้งหมด 2) ขอทยอยรับเงินเป็นงวดๆ (รายเดือน/รายปี) หรือ 3) ขอรับเงินบางส่วนแล้วออมต่อส่วนที่เหลือ เพื่อบริหารผลตอบแทนและวางแผนภาษีได้อย่างยืดหยุ่น
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SUBTAB 2: CHECKLIST CONTENT -->
+                <div id="subtab-content-checklist" class="hidden space-y-6">
+                    <div class="flex items-center justify-between">
+                        <p class="text-xs text-slate-500">ทำเครื่องหมายหน้าหัวข้อที่ดำเนินการเรียบร้อยแล้ว เพื่อติดตามความพร้อม</p>
+                        <span id="checklist-progress-text" class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+                            ความเสร็จสิ้น: 0 / 7 รายการ
+                        </span>
+                    </div>
+
+                    <!-- Checklist Timeline Groups -->
+                    <div class="space-y-6">
+                        <!-- Timeline Group 1: 6 Months Before -->
+                        <div class="border-l-4 border-navy-800 pl-4 space-y-3">
+                            <h4 class="text-sm font-bold text-navy-900 flex items-center">
+                                <span class="w-6 h-6 bg-navy-900 text-white rounded-full text-xs flex items-center justify-center mr-2">1</span>
+                                ช่วง 6 เดือนก่อนเกษียณ (เมษายน - พฤษภาคม)
+                            </h4>
+                            <div class="space-y-2 text-xs">
+                                <label class="flex items-center space-x-3 p-3 bg-slate-50 rounded-lg hover:bg-slate-100 cursor-pointer transition">
+                                    <input type="checkbox" onchange="updateChecklistProgress()" class="chk-item w-4 h-4 text-navy-800 rounded focus:ring-navy-700">
+                                    <span class="text-slate-700">ตรวจสอบอายุราชการและประวัติรับราชการใน ก.พ.7 ให้ถูกต้องสมบูรณ์</span>
+                                </label>
+                                <label class="flex items-center space-x-3 p-3 bg-slate-50 rounded-lg hover:bg-slate-100 cursor-pointer transition">
+                                    <input type="checkbox" onchange="updateChecklistProgress()" class="chk-item w-4 h-4 text-navy-800 rounded focus:ring-navy-700">
+                                    <span class="text-slate-700">เข้าร่วมการอบรมสัมมนาผู้บริหาร/ข้าราชการผู้เตรียมตัวเกษียณอายุราชการ</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Timeline Group 2: 3 Months Before -->
+                        <div class="border-l-4 border-gold-500 pl-4 space-y-3">
+                            <h4 class="text-sm font-bold text-slate-900 flex items-center">
+                                <span class="w-6 h-6 bg-gold-500 text-white rounded-full text-xs flex items-center justify-center mr-2">2</span>
+                                ช่วง 3 เดือนก่อนเกษียณ (มิถุนายน - กรกฎาคม)
+                            </h4>
+                            <div class="space-y-2 text-xs">
+                                <label class="flex items-center space-x-3 p-3 bg-slate-50 rounded-lg hover:bg-slate-100 cursor-pointer transition">
+                                    <input type="checkbox" onchange="updateChecklistProgress()" class="chk-item w-4 h-4 text-navy-800 rounded focus:ring-navy-700">
+                                    <span class="text-slate-700">ยื่นแบบขอรับเงินบำเหน็จบำนาญ (เรื่อง บำนาญ 01) และแจ้งขอรับเงิน กบข. ผ่านฝ่ายบุคคล</span>
+                                </label>
+                                <label class="flex items-center space-x-3 p-3 bg-slate-50 rounded-lg hover:bg-slate-100 cursor-pointer transition">
+                                    <input type="checkbox" onchange="updateChecklistProgress()" class="chk-item w-4 h-4 text-navy-800 rounded focus:ring-navy-700">
+                                    <span class="text-slate-700">เปิดบัญชีธนาคารสำหรับรับเงินบำนาญและเงิน กบข. (ต้องเป็นชื่อบัญชีตนเองเท่านั้น)</span>
+                                </label>
+                                <label class="flex items-center space-x-3 p-3 bg-slate-50 rounded-lg hover:bg-slate-100 cursor-pointer transition">
+                                    <input type="checkbox" onchange="updateChecklistProgress()" class="chk-item w-4 h-4 text-navy-800 rounded focus:ring-navy-700">
+                                    <span class="text-slate-700">ติดต่อสหกรณ์ออมทรัพย์ (ถ้ามี) เพื่อปรับโครงสร้างงวดผ่อนให้สอดคล้องกับเงินบำนาญ</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Timeline Group 3: 1 Month Before -->
+                        <div class="border-l-4 border-emerald-500 pl-4 space-y-3">
+                            <h4 class="text-sm font-bold text-slate-900 flex items-center">
+                                <span class="w-6 h-6 bg-emerald-500 text-white rounded-full text-xs flex items-center justify-center mr-2">3</span>
+                                ช่วง 1 เดือนสุดท้ายก่อนเกษียณ (สิงหาคม - กันยายน)
+                            </h4>
+                            <div class="space-y-2 text-xs">
+                                <label class="flex items-center space-x-3 p-3 bg-slate-50 rounded-lg hover:bg-slate-100 cursor-pointer transition">
+                                    <input type="checkbox" onchange="updateChecklistProgress()" class="chk-item w-4 h-4 text-navy-800 rounded focus:ring-navy-700">
+                                    <span class="text-slate-700">ดาวน์โหลดและลงทะเบียนแอปพลิเคชัน <strong>CGD Life</strong> และ <strong>GPF Application</strong></span>
+                                </label>
+                                <label class="flex items-center space-x-3 p-3 bg-slate-50 rounded-lg hover:bg-slate-100 cursor-pointer transition">
+                                    <input type="checkbox" onchange="updateChecklistProgress()" class="chk-item w-4 h-4 text-navy-800 rounded focus:ring-navy-700">
+                                    <span class="text-slate-700">ตรวจสอบความถูกต้องของสิทธิสวัสดิการรักษาพยาบาลบุคลากรภาครัฐก่อนวันเกษียณราชการ</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-navy-900 text-slate-400 text-xs py-6 border-t border-slate-800 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-2">
+            <p class="text-slate-300 font-medium">Gov-Retire Planner — เครื่องมือวางแผนชีวิตเกษียณเพื่อข้าราชการและพนักงานรัฐ</p>
+            <p class="text-slate-400 text-[11px]">
+                * หมายเหตุ: ระบบนี้เป็นการประมาณการเพื่อการวางแผนเบื้องต้นเท่านั้น เงื่อนไขและจำนวนเงินจริงอาจขึ้นอยู่กับระเบียบกรมบัญชีกลางและกองทุนบำเหน็จบำนาญข้าราชการ (กบข.) ณ วันเกษียณ
+            </p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // Global State & Charts Reference
+        let chartIncomeInstance = null;
+        let chartDebtInstance = null;
+        let chartDebtTabInstance = null;
+
+        // Current Calculated State Values
+        let calculatedState = {
+            currentAge: 48,
+            retireAge: 60,
+            yearsRemaining: 12,
+            retireYear: 2038,
+            currentServiceYears: 23,
+            currentServiceMonths: 6,
+            totalServiceYearsAtRetire: 35,
+            currentSalary: 48500,
+            avgSalary: 55000,
+            isGPF: true,
+            monthlyPension: 38500,
+            pensionRatio: 70,
+            gpfTotalLumpSum: 1850000,
+            gpfMemberShare: 720000,
+            gpfGovShare: 430000,
+            gpfCompensateShare: 280000,
+            gpfGainShare: 420000,
+            lumpSumPensionOption: 1925000,
+            // Debt state
+            debtBalance: 1200000,
+            debtInterestRate: 4.5,
+            debtMonthlyPay: 14000,
+            debtExtraPay: 3000,
+            normalPayMonths: 112, // 9 yrs 4 mos
+            accPayMonths: 86,     // 7 yrs 2 mos
+            savedInterest: 68500,
+        };
+
+        // Initialize App on DOM Load
+        window.onload = function() {
+            calculatePension();
+            calculateDebt();
+            updateCountdown();
+            initCharts();
+        };
+
+        // Tab Switching Logic
+        function switchTab(tabId) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            
+            // Remove active classes from header buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-white/10', 'text-white');
+                btn.classList.add('text-slate-300');
+            });
+
+            // Show target tab
+            const targetTab = document.getElementById('tab-' + tabId);
+            if (targetTab) {
+                targetTab.classList.remove('hidden');
+            }
+
+            // Highlight active nav button
+            const activeNav = document.getElementById('nav-' + tabId);
+            if (activeNav) {
+                activeNav.classList.add('bg-white/10', 'text-white');
+                activeNav.classList.remove('text-slate-300');
+            }
+
+            // Close mobile menu if open
+            document.getElementById('mobile-menu').classList.add('hidden');
+
+            // Refresh charts if needed
+            setTimeout(() => {
+                if (tabId === 'dashboard') {
+                    updateDashboardCharts();
+                } else if (tabId === 'debt') {
+                    updateDebtTabChart();
+                }
+            }, 50);
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // ================= 1. PENSION CALCULATION ENGINE =================
+        function calculatePension() {
+            // Read inputs
+            const age = parseInt(document.getElementById('input-age').value) || 48;
+            const serviceYears = parseInt(document.getElementById('input-service-years').value) || 0;
+            const serviceMonths = parseInt(document.getElementById('input-service-months').value) || 0;
+            const salary = parseFloat(document.getElementById('input-salary').value) || 0;
+            const avgSalary = parseFloat(document.getElementById('input-avg-salary').value) || 0;
+            const isGPF = document.querySelector('input[name="system_type"]:checked').value === 'gpf';
+
+            // Show/hide GPF specific inputs
+            const gpfExtraInputs = document.getElementById('gpf-extra-inputs');
+            const gpfResultCard = document.getElementById('gpf-result-card');
+            if (isGPF) {
+                gpfExtraInputs.classList.remove('hidden');
+                gpfResultCard.classList.remove('hidden');
+            } else {
+                gpfExtraInputs.classList.add('hidden');
+                gpfResultCard.classList.add('hidden');
+            }
+
+            // Retirement Math
+            const yearsToRetire = Math.max(0, 60 - age);
+            const currentYear = new Date().getFullYear();
+            const retireYear = currentYear + yearsToRetire;
+
+            // Total service at retirement (years)
+            let totalServiceYears = serviceYears + yearsToRetire + (serviceMonths / 12);
+            let roundedServiceYears = Math.floor(totalServiceYears);
+            if (totalServiceYears - roundedServiceYears >= 0.5) {
+                roundedServiceYears += 1; // Round up for >= 6 months in government rule
+            }
+
+            // Calculate Monthly Pension
+            let monthlyPension = 0;
+            let ratio = 0;
+
+            if (isGPF) {
+                // GPF Formula: (60-month avg salary * Total Service Years) / 50 (Capped at 70%)
+                let rawPension = (avgSalary * roundedServiceYears) / 50;
+                let maxPension = avgSalary * 0.70;
+                monthlyPension = Math.min(rawPension, maxPension);
+                ratio = (monthlyPension / avgSalary) * 100;
+
+                document.getElementById('out-pension-formula-tag').innerText = "สูตรสมาชิก กบข.";
+                document.getElementById('out-pension-note').innerText = rawPension > maxPension ? 
+                    "* เงินบำนาญคำนวณติดเพดานสูงสุด 70% ตามกฎหมาย กบข." : 
+                    "* คำนวณตามอัตราส่วนอายุราชการเทียบเงินเดือนเฉลี่ย 60 เดือนสุดท้าย";
+            } else {
+                // Old System Formula: (Last Month Salary * Total Service Years) / 50 (No 70% cap limit)
+                monthlyPension = (salary * roundedServiceYears) / 50;
+                ratio = (monthlyPension / salary) * 100;
+
+                document.getElementById('out-pension-formula-tag').innerText = "สูตรบำนาญเดิม (ไม่เพดาน)";
+                document.getElementById('out-pension-note').innerText = "* ระบบบำนาญเดิม ไม่จำกัดเพดาน 70%";
+            }
+
+            // Lump Sum Pension Option (Lump Sum = Last Salary * Service Years)
+            let lumpSumOption = salary * roundedServiceYears;
+
+            // GPF Funds Calculation (Simulated compound interest)
+            let gpfBalanceCurrent = parseFloat(document.getElementById('input-gpf-balance').value) || 0;
+            let gpfRatePercent = parseFloat(document.getElementById('input-gpf-rate').value) || 3;
+
+            // Simple growth estimation over years remaining
+            let annualSavings = salary * 12 * ((3 + gpfRatePercent) / 100); // 3% gov + user rate
+            let estimatedFutureGPF = gpfBalanceCurrent;
+            for (let i = 0; i < yearsToRetire; i++) {
+                estimatedFutureGPF = (estimatedFutureGPF + annualSavings) * 1.035; // 3.5% return
+            }
+
+            let memberShare = estimatedFutureGPF * 0.40;
+            let govShare = estimatedFutureGPF * 0.25;
+            let compensateShare = estimatedFutureGPF * 0.15;
+            let gainShare = estimatedFutureGPF * 0.20;
+
+            // Save to State
+            calculatedState.currentAge = age;
+            calculatedState.yearsRemaining = yearsToRetire;
+            calculatedState.retireYear = retireYear;
+            calculatedState.currentServiceYears = serviceYears;
+            calculatedState.currentServiceMonths = serviceMonths;
+            calculatedState.totalServiceYearsAtRetire = roundedServiceYears;
+            calculatedState.currentSalary = salary;
+            calculatedState.avgSalary = avgSalary;
+            calculatedState.isGPF = isGPF;
+            calculatedState.monthlyPension = Math.round(monthlyPension);
+            calculatedState.pensionRatio = ratio;
+            calculatedState.gpfTotalLumpSum = Math.round(estimatedFutureGPF);
+            calculatedState.gpfMemberShare = Math.round(memberShare);
+            calculatedState.gpfGovShare = Math.round(govShare);
+            calculatedState.gpfCompensateShare = Math.round(compensateShare);
+            calculatedState.gpfGainShare = Math.round(gainShare);
+            calculatedState.lumpSumPensionOption = Math.round(lumpSumOption);
+
+            // Update DOM UI Elements
+            document.getElementById('out-total-service-years').innerText = roundedServiceYears;
+            document.getElementById('out-monthly-pension').innerText = monthlyPension.toLocaleString('th-TH', { maximumFractionDigits: 0 });
+            document.getElementById('out-pension-ratio').innerText = ratio.toFixed(2) + "%";
+            
+            document.getElementById('out-gpf-total').innerText = Math.round(estimatedFutureGPF).toLocaleString('th-TH') + " บาท";
+            document.getElementById('out-gpf-member').innerText = Math.round(memberShare).toLocaleString('th-TH') + " บาท";
+            document.getElementById('out-gpf-gov').innerText = Math.round(govShare).toLocaleString('th-TH') + " บาท";
+            document.getElementById('out-gpf-compensate').innerText = Math.round(compensateShare).toLocaleString('th-TH') + " บาท";
+            document.getElementById('out-gpf-gain').innerText = Math.round(gainShare).toLocaleString('th-TH') + " บาท";
+            document.getElementById('out-lump-pension-option').innerText = Math.round(lumpSumOption).toLocaleString('th-TH');
+
+            // Update Dashboard Metrics
+            document.getElementById('dash-pension-amount').innerText = Math.round(monthlyPension).toLocaleString('th-TH');
+            document.getElementById('dash-lump-sum').innerText = Math.round(estimatedFutureGPF).toLocaleString('th-TH');
+            document.getElementById('dash-retire-year').innerText = retireYear + 543; // พ.ศ.
+            document.getElementById('dash-total-service').innerText = roundedServiceYears;
+
+            updateCountdown();
+            updateDashboardCharts();
+        }
+
+        // ================= 2. DEBT CALCULATION ENGINE =================
+        function calculateDebt() {
+            const balance = parseFloat(document.getElementById('input-debt-balance').value) || 0;
+            const rateYear = parseFloat(document.getElementById('input-debt-rate').value) || 0;
+            const monthlyPay = parseFloat(document.getElementById('input-debt-pay').value) || 0;
+            const extraPay = parseFloat(document.getElementById('input-debt-extra').value) || 0;
+
+            const r = rateYear / 100 / 12; // monthly rate
+
+            // Calculate Normal Repayment Timeline
+            let normalMonths = 0;
+            let normalInterestTotal = 0;
+            let tempBalance = balance;
+
+            if (monthlyPay > tempBalance * r) {
+                while (tempBalance > 0 && normalMonths < 360) {
+                    let interest = tempBalance * r;
+                    let principal = monthlyPay - interest;
+                    if (tempBalance < principal) {
+                        principal = tempBalance;
+                    }
+                    tempBalance -= principal;
+                    normalInterestTotal += interest;
+                    normalMonths++;
+                }
+            } else {
+                normalMonths = 999; // Insufficient payment
+            }
+
+            // Calculate Accelerated Repayment Timeline (with Extra Pay)
+            let accMonths = 0;
+            let accInterestTotal = 0;
+            tempBalance = balance;
+            let totalAcceleratedMonthly = monthlyPay + extraPay;
+
+            if (totalAcceleratedMonthly > tempBalance * r) {
+                while (tempBalance > 0 && accMonths < 360) {
+                    let interest = tempBalance * r;
+                    let principal = totalAcceleratedMonthly - interest;
+                    if (tempBalance < principal) {
+                        principal = tempBalance;
+                    }
+                    tempBalance -= principal;
+                    accInterestTotal += interest;
+                    accMonths++;
+                }
+            } else {
+                accMonths = 999;
+            }
+
+            // Savings
+            let savedInterest = Math.max(0, normalInterestTotal - accInterestTotal);
+            let savedMonths = Math.max(0, normalMonths - accMonths);
+
+            // Calculate PMT for exact debt clearance at retirement
+            let monthsToRetire = calculatedState.yearsRemaining * 12;
+            let targetMonthlyPay = 0;
+            if (monthsToRetire > 0 && r > 0) {
+                targetMonthlyPay = (balance * r * Math.pow(1 + r, monthsToRetire)) / (Math.pow(1 + r, monthsToRetire) - 1);
+            }
+
+            // Update UI
+            let normalY = Math.floor(normalMonths / 12);
+            let normalM = normalMonths % 12;
+            let accY = Math.floor(accMonths / 12);
+            let accM = accMonths % 12;
+
+            const currentYear = new Date().getFullYear();
+
+            document.getElementById('out-normal-years').innerText = normalY;
+            document.getElementById('out-normal-months').innerText = normalM;
+            document.getElementById('out-normal-end-year').innerText = "พ.ศ. " + (currentYear + normalY + 543);
+            document.getElementById('out-normal-interest').innerText = Math.round(normalInterestTotal).toLocaleString('th-TH') + " บาท";
+
+            document.getElementById('out-extra-label').innerText = extraPay.toLocaleString('th-TH');
+            document.getElementById('out-acc-years').innerText = accY;
+            document.getElementById('out-acc-months').innerText = accM;
+            document.getElementById('out-acc-end-year').innerText = "พ.ศ. " + (currentYear + accY + 543);
+            document.getElementById('out-acc-saved-interest').innerText = Math.round(savedInterest).toLocaleString('th-TH') + " บาท";
+            document.getElementById('out-years-saved').innerText = (savedMonths / 12).toFixed(1);
+
+            document.getElementById('out-debt-retire-years').innerText = calculatedState.yearsRemaining;
+            document.getElementById('out-target-pay').innerText = Math.round(targetMonthlyPay).toLocaleString('th-TH');
+
+            // Dashboard debt status badge update
+            const dashBadge = document.getElementById('dash-debt-badge');
+            const dashYear = document.getElementById('dash-debt-year');
+            const dashDesc = document.getElementById('dash-debt-desc');
+
+            if (normalY <= calculatedState.yearsRemaining) {
+                dashBadge.className = "text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200";
+                dashBadge.innerHTML = "ผ่อนหมดก่อนเกษียณ";
+                dashYear.innerText = "เหลือ " + normalY + " ปี " + normalM + " เดือน";
+                dashDesc.innerHTML = `<i class="fa-solid fa-check-circle text-emerald-500 mr-1.5"></i> หนี้สิ้นสุดก่อนเกษียณ ${calculatedState.yearsRemaining - normalY} ปี`;
+            } else {
+                dashBadge.className = "text-xs font-semibold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200";
+                dashBadge.innerHTML = "หนี้เกินวันเกษียณ";
+                dashYear.innerText = "ยังเหลืออีก " + normalY + " ปี";
+                dashDesc.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-amber-500 mr-1.5"></i> แนะนำเพิ่มงวดผ่อนอีกเดือนละ ${Math.round(Math.max(0, targetMonthlyPay - monthlyPay)).toLocaleString('th-TH')} บาท`;
+            }
+
+            // Save to State
+            calculatedState.debtBalance = balance;
+            calculatedState.debtInterestRate = rateYear;
+            calculatedState.debtMonthlyPay = monthlyPay;
+            calculatedState.debtExtraPay = extraPay;
+            calculatedState.normalPayMonths = normalMonths;
+            calculatedState.accPayMonths = accMonths;
+
+            updateDashboardCharts();
+            updateDebtTabChart();
+        }
+
+        // Countdown Timer Logic
+        function updateCountdown() {
+            const age = parseInt(document.getElementById('input-age').value) || 48;
+            const yearsLeft = Math.max(0, 60 - age);
+
+            document.getElementById('cd-years').innerText = yearsLeft;
+            document.getElementById('cd-months').innerText = "5"; // Fixed aesthetic approximation
+            document.getElementById('cd-days').innerText = "18";
+        }
+
+        // ================= 3. CHARTS MANAGEMENT =================
+        function initCharts() {
+            // Chart 1: Income Comparison Chart
+            const ctx1 = document.getElementById('chartIncomeComparison').getContext('2d');
+            chartIncomeInstance = new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: ['เงินเดือนปัจจุบัน', 'ประมาณการเงินเดือนสุดท้าย', 'เงินบำนาญรายเดือน'],
+                    datasets: [{
+                        label: 'จำนวนเงิน (บาท)',
+                        data: [calculatedState.currentSalary, calculatedState.avgSalary, calculatedState.monthlyPension],
+                        backgroundColor: ['#0b69a3', '#102a43', '#10b981'],
+                        borderRadius: 8,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.parsed.y.toLocaleString('th-TH') + ' บาท';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) { return value.toLocaleString('th-TH') + ' ฿'; }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Chart 2: Debt Trajectory Chart (Dashboard)
+            const ctx2 = document.getElementById('chartDebtTrajectory').getContext('2d');
+            chartDebtInstance = new Chart(ctx2, {
+                type: 'line',
+                data: getDebtChartData(),
+                options: getDebtChartOptions()
+            });
+
+            // Chart 3: Debt Tab Trajectory
+            const ctx3 = document.getElementById('chartDebtTabTrajectory').getContext('2d');
+            chartDebtTabInstance = new Chart(ctx3, {
+                type: 'line',
+                data: getDebtChartData(),
+                options: getDebtChartOptions()
+            });
+        }
+
+        function getDebtChartData() {
+            const currentYear = new Date().getFullYear();
+            const labels = [];
+            const normalData = [];
+            const accData = [];
+
+            let balNormal = calculatedState.debtBalance;
+            let balAcc = calculatedState.debtBalance;
+            const r = (calculatedState.debtInterestRate / 100) / 12;
+
+            for (let i = 0; i <= 10; i++) {
+                labels.push("ปี " + (currentYear + i + 543));
+
+                normalData.push(Math.max(0, Math.round(balNormal)));
+                accData.push(Math.max(0, Math.round(balAcc)));
+
+                // Simulate 12 months reduction
+                for (let m = 0; m < 12; m++) {
+                    if (balNormal > 0) {
+                        let interest = balNormal * r;
+                        balNormal -= (calculatedState.debtMonthlyPay - interest);
+                    }
+                    if (balAcc > 0) {
+                        let interest = balAcc * r;
+                        balAcc -= ((calculatedState.debtMonthlyPay + calculatedState.debtExtraPay) - interest);
+                    }
+                }
+            }
+
+            return {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'ผ่อนปกติ',
+                        data: normalData,
+                        borderColor: '#94a3b8',
+                        backgroundColor: 'rgba(148, 163, 184, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'ผ่อน + โปะพิเศษ',
+                        data: accData,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                        fill: true,
+                        tension: 0.3
+                    }
+                ]
+            };
+        }
+
+        function getDebtChartOptions() {
+            return {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.parsed.y.toLocaleString('th-TH') + ' บาท';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) { return (value / 1000000).toFixed(1) + 'M ฿'; }
+                        }
+                    }
+                }
+            };
+        }
+
+        function updateDashboardCharts() {
+            if (chartIncomeInstance) {
+                chartIncomeInstance.data.datasets[0].data = [
+                    calculatedState.currentSalary,
+                    calculatedState.avgSalary,
+                    calculatedState.monthlyPension
+                ];
+                chartIncomeInstance.update();
+            }
+
+            if (chartDebtInstance) {
+                const updatedData = getDebtChartData();
+                chartDebtInstance.data = updatedData;
+                chartDebtInstance.update();
+            }
+        }
+
+        function updateDebtTabChart() {
+            if (chartDebtTabInstance) {
+                const updatedData = getDebtChartData();
+                chartDebtTabInstance.data = updatedData;
+                chartDebtTabInstance.update();
+            }
+        }
+
+        // ================= 4. FAQ & CHECKLIST INTERACTION =================
+        function toggleFAQ(button) {
+            const answer = button.nextElementSibling;
+            const icon = button.querySelector('.fa-chevron-down');
+
+            if (answer.classList.contains('hidden')) {
+                answer.classList.remove('hidden');
+                icon.style.transform = 'rotate(180deg)';
+            } else {
+                answer.classList.add('hidden');
+                icon.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        function filterFAQ() {
+            const query = document.getElementById('faq-search').value.toLowerCase();
+            const items = document.querySelectorAll('.faq-item');
+
+            items.forEach(item => {
+                const text = item.innerText.toLowerCase();
+                if (text.includes(query)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        function toggleGuideSubtab(type) {
+            const btn1 = document.getElementById('guide-subtab-1');
+            const btn2 = document.getElementById('guide-subtab-2');
+            const contentWelfare = document.getElementById('subtab-content-welfare');
+            const contentChecklist = document.getElementById('subtab-content-checklist');
+
+            if (type === 'welfare') {
+                btn1.className = "pb-3 text-sm font-bold border-b-2 border-navy-900 text-navy-900";
+                btn2.className = "pb-3 text-sm font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent";
+                contentWelfare.classList.remove('hidden');
+                contentChecklist.classList.add('hidden');
+            } else {
+                btn2.className = "pb-3 text-sm font-bold border-b-2 border-navy-900 text-navy-900";
+                btn1.className = "pb-3 text-sm font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent";
+                contentChecklist.classList.remove('hidden');
+                contentWelfare.classList.add('hidden');
+            }
+        }
+
+        function updateChecklistProgress() {
+            const checkboxes = document.querySelectorAll('.chk-item');
+            let checkedCount = 0;
+            checkboxes.forEach(chk => {
+                if (chk.checked) checkedCount++;
+            });
+
+            document.getElementById('checklist-progress-text').innerText = 
+                `ความเสร็จสิ้น: ${checkedCount} / ${checkboxes.length} รายการ`;
+        }
+    </script>
+</body>
+</html>
